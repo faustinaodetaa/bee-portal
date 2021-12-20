@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bee-portal | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardScoring.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardScoring.html">Scores</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+    <div class="d-flex justify-content-center">
+      <h3>Scores</h3>
+    </div>
+    <div class="col text-center">
+      <!-- <a href="./addCourse.html" class="btn btn-primary">Add Course</a> -->
+    </div>
+
+    <br />
+    <div class="col text-center">
+        <div class="card text-center" style="width: 18rem" id="scores">
+          <div class="topics" id="scores">
+            
+            <div class="card-body">
+              <template id="score-template">
+                <div class="topic topic1">
+                  <div class="topic-bg"></div>
+                  <h3 id="user-name"></h3>
+                  <h5 id="course-name"></h5>
+                  <p id="grade"></p>
+                  <p id="status"></p>
+                  <p id="score"></p>
+                  <hr>
+                  </div>
+    <br>
+                  <a href="#" class="btn btn-primary" id="">Finalize Score</a>
+                 <br>
+                </div>
+              </template>
+            </div>
+          </div>
+    </div>
+        </div>
+
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    window.onload = async () => {
+      const querySnapshot = await getDocs(collection(db, "Scores"));
+      const currUID = await UserController.getUserByID(
+        localStorage.getItem("activeUserID")
+      );
+
+      querySnapshot.forEach((query) => {
+        const { grade, score, status, userID, examID } = query.data();
+        console.log(query.data());
+        let body = document.querySelector("#scores");
+        let template = document.querySelector("#score-template");
+        const clone = template.content.cloneNode(true);
+        const user_name = clone.querySelector("#user-name");
+        const course_name = clone.querySelector("#course-name");
+        const student_grade = clone.querySelector("#grade");
+        const student_score = clone.querySelector("#score");
+        const student_status = clone.querySelector("#status");
+        user_name.textContent = userID;
+        course_name.textContent = examID;
+        student_grade.textContent = grade;
+        student_score.textContent = score;
+        student_status.textContent = status;
+
+        body.appendChild(clone);
+      });
+    };
+    const currUID = await UserController.getUserByID(
+      localStorage.getItem("activeUserID")
+    );
+    document.getElementById("name").textContent = "Hi " + currUID.name + "!";
+  </script>
+</html>

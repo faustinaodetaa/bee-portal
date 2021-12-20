@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bee-portal | Course</title>
+    <link rel="stylesheet" href="https://bootswatch.com/5/minty/bootstrap.min.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardAcad.html">Courses</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <br />
+    <div class="card text-center" style="width: 90%" id="courses">
+      <div class="topics" id="courses">
+        <div class="card-body">
+          <template id="course-template">
+            <div class="topic topic1">
+              <div class="topic-bg"></div>
+              <h1 id="course-name"></h1>
+              <h3 id="course-description"></h3>
+              <br>
+              <h5 id="learning-outcome"></h5>
+              <br>
+              <h5 id="teaching-strategies"></h5>
+              <br>
+              <h5 id="textbooks"></h5>
+              </div>
+              <div class="topic-count" id="course-credit"></div>
+
+              <a href="./updateCourse.html" class="btn btn-primary">Update Course</a>
+              <a href="#" class="btn btn-primary" id="delete">Delete Course</a>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc, limit,
+      where, query
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+    import { CourseController } from "../../controller/CourseController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    window.onload = async () => {
+      const courseIDs = new URLSearchParams(window.location.search).get('id');
+      console.log(courseIDs);
+      localStorage.setItem("currCourse", courseIDs);
+
+      const course = await CourseController.getCourseByID(courseIDs);
+
+      var q = query(collection(db, "Syllabus"), where("courseID", "==", doc(db, "Courses", courseIDs)));
+
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((query) => {
+        const { courseID, learningOutcome, teachingStrategies, textbooks } = query.data();
+        console.log(query.data());
+        let body = document.querySelector("#courses");
+        let template = document.querySelector("#course-template");
+        const clone = template.content.cloneNode(true);
+        const course_name = clone.querySelector("#course-name");
+        const course_credit = clone.querySelector("#course-credit");
+        const course_description = clone.querySelector("#course-description");
+        const learning_outcome = clone.querySelector("#learning-outcome");
+        const teaching_strategies = clone.querySelector("#teaching-strategies");
+        const textbooks_content = clone.querySelector("#textbooks");
+
+        course_name.textContent = course.courseName;
+        course_credit.textContent = "Course Credit: " + course.courseCredits;
+        course_description.textContent = course.courseDescription;
+        learning_outcome.textContent = learningOutcome;
+        teaching_strategies.textContent = teachingStrategies;
+        textbooks_content.textContent = textbooks;
+
+        clone.querySelector("#delete").addEventListener("click", async () => {
+          const courseID = new URLSearchParams(window.location.search).get('id');
+          console.log(courseID);
+          await deleteDoc(doc(db, "Courses", courseID));
+          alert("Success delete course!");
+          window.location.assign("./dashboardAcad.html");
+        });
+        body.appendChild(clone);
+      });
+    };
+  </script>
+</html>

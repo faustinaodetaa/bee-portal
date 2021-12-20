@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Course</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardAcad.html">Courses</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="form">
+      <div class="d-flex justify-content-center" style="margin-top: 100px">
+        <h3>Add New Course</h3>
+      </div>
+      <div style="margin: 100px">
+        <fieldset>
+          <div class="form-group">
+            <label for="course-name" class="form-label mt-4"
+              >Course Name:
+            </label>
+            <input
+              id="course-name"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="course-credit" class="form-label mt-4"
+              >Course Credits:
+            </label>
+            <input
+              id="course-credit"
+              class="form-control"
+              type="number"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="course-description" class="form-label mt-4"
+              >Course Description:
+            </label>
+            <input
+              id="course-description"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="learning-outcome" class="form-label mt-4"
+              >Learning Outcome:
+            </label>
+            <input
+              id="learning-outcome"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="teaching-strategies" class="form-label mt-4"
+              >Teaching Strategies:
+            </label>
+            <input
+              id="teaching-strategies"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="textbooks" class="form-label mt-4">Textbooks: </label>
+            <input
+              id="textbooks"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <br />
+          <div class="text-center">
+            <button type="text" class="btn btn-primary" id="submitBtn">
+              Add Course
+            </button>
+          </div>
+          <hr />
+        </fieldset>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      addDoc,
+      getFirestore,
+      doc,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+
+    const db = getFirestore(firebaseApp);
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      try {
+        const docRef = await addDoc(collection(db, "Courses"), {
+          courseName: document.getElementById("course-name").value,
+          courseCredits: document.getElementById("course-credit").value,
+          courseDescription:
+            document.getElementById("course-description").value,
+        });
+        const docRef2 = await addDoc(collection(db, "Syllabus"), {
+          courseID: doc(db, "Courses", docRef.id),
+          learningOutcome: document.getElementById("learning-outcome").value,
+          teachingStrategies: document.getElementById("teaching-strategies")
+            .value,
+          textbooks: document.getElementById("textbooks").value,
+        });
+        console.log("Document written with ID: ", docRef.id);
+        alert("Success adding a new course!");
+        window.location.assign("./dashboardAcad.html");
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    });
+  </script>
+</html>
