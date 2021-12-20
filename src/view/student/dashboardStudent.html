@@ -74,35 +74,31 @@
     const db = getFirestore(firebaseApp);
 
     window.onload = async () => {
-      const querySnapshot = await getDocs(collection(db, "Attendances"));
+      const querySnapshot = await getDocs(collection(db, "Classes"));
       const currUID = await UserController.getUserByID(
         localStorage.getItem("activeUserID")
       );
       
 
       querySnapshot.forEach((query) => {
-        const { classID, userID, session, status } = query.data();
+        const { classCode, classDay, classShift, courseID, lecturerID, studentID } = query.data();
         console.log(query.data());
-
-        // const q = query(collection(db, "Users"), where(id, "==", doc(db, "Users", userID.id)));
-        // const q2 = await getDocs(q);
-        // console.log(q2);
-        console.log(userID.id);
-    console.log(classID.id)
-        
-
-        let body = document.querySelector("#attendances");
-        let template = document.querySelector("#attendance-template");
+        let body = document.querySelector("#classes");
+        let template = document.querySelector("#class-template");
         const clone = template.content.cloneNode(true);
-        const class_name = clone.querySelector("#class-name");
+        const class_code = clone.querySelector("#class-code");
+        const class_day = clone.querySelector("#class-day");
+        const class_shift = clone.querySelector("#class-shift");
+        const course_name = clone.querySelector("#course-name");
+        const lecturer_name = clone.querySelector("#lecturer-name");
         const student_name = clone.querySelector("#student-name");
-        const attendance_session = clone.querySelector("#session");
-        const attendance_status = clone.querySelector("#status");
 
-        class_name.textContent = "Class Code: "+  classID;
-        student_name.textContent = "Student ID: " + userID;
-        attendance_session.textContent = "Session: " + session;
-        attendance_status.textContent = "Status: " + status;
+        class_code.textContent = classCode;
+        class_day.textContent = "Class Day: " + classDay;
+        class_shift.textContent = "Class Shift: " + classShift;
+        course_name.textContent = "Course Name";
+        lecturer_name.textContent = "Lecturer Name";
+        student_name.textContent = "Student Name";
 
 
         body.appendChild(clone);

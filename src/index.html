@@ -94,7 +94,9 @@
             // administrative department
             alert("Welcome " + userName + "!");
             localStorage.setItem("activeUserID", docs.id);
-            window.location.assign("./view/admin/dashboardAdmin.html");
+            window.location.assign(
+              "./view/administrativeDepartment/dashboardAdmin.html"
+            );
           } else if (userRole == "Academic Department") {
             // academic department
             alert("Welcome " + userName + "!");

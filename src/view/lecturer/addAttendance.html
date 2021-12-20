@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Attendance</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./attendance.html">Attendance</a>
+        <a class="navbar-brand" href="./forum.html">Forum</a>
+        <a class="navbar-brand" href="./assignment.html">Assignment</a>
+        <a class="navbar-brand" href="./scoring.html">Scoring</a>
+
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="form">
+      <div class="d-flex justify-content-center" style="margin-top: 100px">
+        <h3>Submit Student Attendance</h3>
+      </div>
+      <div style="margin: 100px">
+        <fieldset>
+          <div class="form-group">
+            <label for="nim" class="form-label mt-4">Student NIM: </label>
+            <input id="nim" class="form-control" type="text" placeholder=" " />
+          </div>
+          <div class="form-group">
+            <label for="class-code" class="form-label mt-4">Class Code: </label>
+            <input
+              id="class-code"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="status" class="form-label mt-4">Status: </label>
+            <input
+              id="status"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="session" class="form-label mt-4">Session: </label>
+            <input
+              id="session"
+              class="form-control"
+              type="number"
+              placeholder=" "
+            />
+          </div>
+
+          <br />
+          <div class="text-center">
+            <button type="text" class="btn btn-primary" id="submitBtn">
+              Submit Attendance
+            </button>
+          </div>
+          <hr />
+        </fieldset>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      addDoc,
+      getFirestore,
+      doc,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+
+    const db = getFirestore(firebaseApp);
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      try {
+        const docRef = await addDoc(collection(db, "Attendances"), {
+          userID: document.getElementById("nim").value,
+          classID: document.getElementById("class-code").value,
+          session: document.getElementById("session").value,
+          status: document.getElementById("status").value,
+        });
+
+        console.log("Document written with ID: ", docRef.id);
+        alert("Success submitting student attendance!");
+        window.location.assign("./dashboardLecturer.html");
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    });
+  </script>
+</html>
