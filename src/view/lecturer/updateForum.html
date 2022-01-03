@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Submit Attendance</title>
+    <title>Add New Course</title>
     <link
       rel="stylesheet"
       href="https://bootswatch.com/5/minty/bootstrap.min.css"
@@ -26,32 +26,23 @@
     </nav>
     <div class="form">
       <div class="d-flex justify-content-center" style="margin-top: 100px">
-        <h3>Submit Student Attendance</h3>
+        <h3>Update Forum</h3>
       </div>
       <div style="margin: 100px">
         <fieldset>
           <div class="form-group">
-            <label for="student-id" class="form-label mt-4">Student ID: </label>
+            <label for="forum-title" class="form-label mt-4">Title: </label>
             <input
-              id="student-id"
+              id="forum-title"
               class="form-control"
               type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="session" class="form-label mt-4">Session: </label>
+            <label for="forum-content" class="form-label mt-4">Content: </label>
             <input
-              id="session"
-              class="form-control"
-              type="number"
-              placeholder=" "
-            />
-          </div>
-          <div class="form-group">
-            <label for="status" class="form-label mt-4">Status: </label>
-            <input
-              id="status"
+              id="forum-content"
               class="form-control"
               type="text"
               placeholder=" "
@@ -60,8 +51,8 @@
 
           <br />
           <div class="text-center">
-            <button type="text" class="btn btn-primary" id="submitBtn">
-              Submit Attendance
+            <button type="text" class="btn btn-primary" id="updateBtn">
+              Update Forum
             </button>
           </div>
           <hr />
@@ -76,28 +67,38 @@
       collection,
       addDoc,
       getFirestore,
+      updateDoc,
       doc,
+      getDoc,
     } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
     import { firebaseApp } from "../../firebase.js";
 
     const db = getFirestore(firebaseApp);
-    const currClass = localStorage.getItem("currentClass");
+    const forumID = localStorage.getItem("currForum");
 
-    document.getElementById("submitBtn").addEventListener("click", async () => {
-      try {
-        const docRef = await addDoc(collection(db, "Attendances"), {
-          classID: currClass,
-          studentID: document.getElementById("student-id").value,
-          session: document.getElementById("session").value,
-          status: document.getElementById("status").value,
-        });
+    window.onload = async () => {
+      const docRef = doc(db, "Forums", forumID);
+      const docSnap = await getDoc(docRef);
 
-        console.log("Document written with ID: ", docRef.id);
-        alert("Success submitting student attendance!");
-        window.location.assign("./classDetail.html");
-      } catch (e) {
-        console.error("Error adding document: ", e);
+      if (docSnap.exists()) {
+        const { content, title } = docSnap.data();
+
+        document.getElementById("forum-title").setAttribute("value", title);
+        document.getElementById("forum-content").setAttribute("value", content);
+
+        console.log("Document data:", docSnap.data());
       }
+    };
+
+    document.getElementById("updateBtn").addEventListener("click", async () => {
+      const query = doc(db, "Forums", forumID);
+      await updateDoc(query, {
+        title: document.getElementById("forum-title").value,
+        content: document.getElementById("forum-content").value,
+      });
+
+      alert("Success Updating forum!");
+      window.location.assign("./forum.html");
     });
   </script>
 </html>

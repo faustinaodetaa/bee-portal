@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Attendance</title>
+    <title>Add New Course</title>
     <link
       rel="stylesheet"
       href="https://bootswatch.com/5/minty/bootstrap.min.css"
@@ -14,36 +14,24 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
-        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
-        <a class="navbar-brand" href="./attendance.html">Attendance</a>
+        <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
         <a class="navbar-brand" href="./forum.html">Forum</a>
+        <a class="navbar-brand" href="./score.html">Score</a>
         <a class="navbar-brand" href="./assignment.html">Assignment</a>
-        <a class="navbar-brand" href="./scoring.html">Scoring</a>
-
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
     <div class="form">
       <div class="d-flex justify-content-center" style="margin-top: 100px">
-        <h3>Update Attendance</h3>
+        <h3>Update Forum</h3>
       </div>
       <div style="margin: 100px">
         <fieldset>
           <div class="form-group">
-            <label for="session" class="form-label mt-4">Session: </label>
+            <label for="forum-content" class="form-label mt-4">Content: </label>
             <input
-              id="session"
-              class="form-control"
-              type="number"
-              placeholder=" "
-              disabled
-            />
-          </div>
-          <div class="form-group">
-            <label for="status" class="form-label mt-4">Status: </label>
-            <input
-              id="status"
+              id="forum-content"
               class="form-control"
               type="text"
               placeholder=" "
@@ -53,7 +41,7 @@
           <br />
           <div class="text-center">
             <button type="text" class="btn btn-primary" id="updateBtn">
-              Update Attendance
+              Update Forum
             </button>
           </div>
           <hr />
@@ -75,31 +63,29 @@
     import { firebaseApp } from "../../firebase.js";
 
     const db = getFirestore(firebaseApp);
-    const attendanceID = localStorage.getItem("currAttendance");
-
-    // const attendanceID = new URLSearchParams(window.location.search).get("id");
-    console.log(attendanceID);
+    const forumReplyID = localStorage.getItem("currForumReply");
 
     window.onload = async () => {
-      const docRef = doc(db, "Attendances", attendanceID);
+      const docRef = doc(db, "ForumReplies", forumReplyID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const { session, status } = docSnap.data();
+        const { content } = docSnap.data();
 
-        document.getElementById("session").setAttribute("value", session);
-        document.getElementById("status").setAttribute("value", status);
+        document.getElementById("forum-content").setAttribute("value", content);
+
+        console.log("Document data:", docSnap.data());
       }
     };
 
     document.getElementById("updateBtn").addEventListener("click", async () => {
-      const query = doc(db, "Attendances", attendanceID);
+      const query = doc(db, "ForumReplies", forumReplyID);
       await updateDoc(query, {
-        status: document.getElementById("status").value,
+        content: document.getElementById("forum-content").value,
       });
 
-      alert("Success Updating Attendance!");
-      window.location.assign("./classDetail.html");
+      alert("Success Updating reply!");
+      window.location.assign("./forumDetail.html");
     });
   </script>
 </html>

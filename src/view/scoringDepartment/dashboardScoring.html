@@ -24,9 +24,6 @@
     <div class="d-flex justify-content-center">
       <h3>Scores</h3>
     </div>
-    <div class="col text-center">
-      <!-- <a href="./addCourse.html" class="btn btn-primary">Add Course</a> -->
-    </div>
 
     <br />
     <div class="col text-center">
@@ -37,16 +34,16 @@
               <template id="score-template">
                 <div class="topic topic1">
                   <div class="topic-bg"></div>
-                  <h3 id="user-name"></h3>
+                  <h4 id="user-name"></h4>
                   <h5 id="course-name"></h5>
                   <p id="grade"></p>
                   <p id="status"></p>
                   <p id="score"></p>
+                  <p id="finalize"></p>
+                  <div class="btn btn-primary" id="finalize-score" style="cursor: pointer">Finalize Score</div>                 
                   <hr>
                   </div>
-    <br>
-                  <a href="#" class="btn btn-primary" id="">Finalize Score</a>
-                 <br>
+                <br>
                 </div>
               </template>
             </div>
@@ -63,7 +60,7 @@
       getDocs,
       getFirestore,
       doc,
-      deleteDoc,
+      deleteDoc, getDoc, updateDoc
     } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
     import { firebaseApp } from "../../firebase.js";
     import { UserController } from "../../controller/UserController.js";
@@ -77,7 +74,7 @@
       );
 
       querySnapshot.forEach((query) => {
-        const { grade, score, status, userID, examID } = query.data();
+        const { grade, score, status, userID, examID, finalize } = query.data();
         console.log(query.data());
         let body = document.querySelector("#scores");
         let template = document.querySelector("#score-template");
@@ -87,15 +84,73 @@
         const student_grade = clone.querySelector("#grade");
         const student_score = clone.querySelector("#score");
         const student_status = clone.querySelector("#status");
-        user_name.textContent = userID;
-        course_name.textContent = examID;
+        const finalize_status = clone.querySelector("#finalize");
+
         student_grade.textContent = grade;
         student_score.textContent = score;
         student_status.textContent = status;
+        finalize_status.textContent = finalize;
+
+        async function getStudentName() {
+          const docRef = doc(db, "Users", userID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document.getElementById("user-name").setAttribute("value", userName);           
+            user_name.textContent = "Student Name: " + userName;
+          }
+        }
+
+        async function getClassID(){
+          const docRef = doc(db, "Exams", examID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { classID } = docSnap.data();
+            getCourseID(classID);
+            
+          }
+        }
+
+        async function getCourseID(classID){
+          const docRef = doc(db, "Classes", classID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { courseID } = docSnap.data();
+            getCourseName(courseID);
+          }
+        }
+        
+        async function getCourseName(courseID){
+          const docRef = doc(db, "Courses", courseID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { courseName } = docSnap.data();
+            document.getElementById("course-name").setAttribute("value", courseName);
+            
+            course_name.textContent = "Course Name: " + courseName;
+
+          }
+        }
+
+        getClassID();
+        getStudentName();
+
+    clone.querySelector('#finalize-score').addEventListener('click', async () => {
+      const q = doc(db, "Scores", query.id);
+          // console.log(q.data());
+          await updateDoc(q, {
+            finalize: "Finalized"
+          });
+          alert('Success finalized score!')
+          window.location.assign("./dashboardScoring.html");
+          })
 
         body.appendChild(clone);
       });
     };
+
+    
+
     const currUID = await UserController.getUserByID(
       localStorage.getItem("activeUserID")
     );

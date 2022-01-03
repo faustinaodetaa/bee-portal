@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bee-portal | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
+        <!-- <a class="navbar-brand" href="#">Hi Academic Department!</a> -->
+        <a class="navbar-brand" href="./course.html">Courses</a>
+        <a class="navbar-brand" href="./curriculum.html">Curriculum</a>     
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+    <div class="d-flex justify-content-center">
+      <h3>Curriculum</h3>
+    </div>
+    <div class="col text-center">
+      <a href="./addCurriculum.html" class="btn btn-primary">Add Curriculum</a>
+    </div>
+
+    <br />
+    <!-- <h3 id="major"></h3>
+    <h3 id="total-credits"></h3> -->
+    <div class="col text-center">
+        <div class="card text-center" style="width: 18rem;" id="curriculum">
+          <div class="topics" id="curriculums" >
+
+            <div class="card-body">
+              <template id="curriculum-template">
+                <div class="topic topic1">
+                  <div class="topic-bg"></div>
+                  <h3 id="major-name"></h3>
+                  </div>
+                  <div class="topic-count" id="semester-count"></div>
+                  <h5 id="total-credits"></h5>
+                  <h5 id="course1"></h5>
+                  <h5 id="course2"></h5>
+                  
+                  <br>
+                  <a href="#" class="btn btn-primary" id="update">Update Curriculum</a>
+                  <a href="#" class="btn btn-primary" id="delete">Delete Curriculum</a>
+                  
+                  <hr>
+                 <br>
+                </div>
+              </template>
+            </div>
+          </div>
+    </div>
+        </div>
+
+  </body>
+
+  <script type="module">
+       import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    window.onload = async () => {
+      const querySnapshot = await getDocs(collection(db, "Curriculum"));
+      const currUID = await UserController.getUserByID(
+        localStorage.getItem("activeUserID")
+      );
+
+      querySnapshot.forEach((query) => {
+          const { major, semester, totalCredits, course1, course2 } = query.data();
+          let body = document.querySelector("#curriculums");
+        let template = document.querySelector("#curriculum-template");
+        const clone = template.content.cloneNode(true);
+        const major_name = clone.querySelector("#major-name");
+        const semester_count = clone.querySelector("#semester-count");
+        const total_credit = clone.querySelector("#total-credits");
+        const courses_list = clone.querySelector("#course1");
+        const courses_list2 = clone.querySelector("#course2");
+
+
+        async function test  (){
+            const docRef = doc(db, "Courses", course1);
+        const docRef2 = doc(db, "Courses", course2);
+
+        const docSnap = await getDoc(docRef);
+        const docSnap2 = await getDoc(docRef2);
+
+        if (docSnap.exists()) {
+        const {
+          courseName,
+        } = docSnap.data();
+
+        document
+          .getElementById("course1")
+          .setAttribute("value", courseName);
+
+          courses_list.textContent = "Courses: " + courseName;
+        console.log(courseName)
+
+    }
+          if (docSnap2.exists()) {
+        const {
+          courseName,
+        } = docSnap2.data();
+
+        document
+          .getElementById("course2")
+          .setAttribute("value", courseName);
+          courses_list2.textContent = courseName;
+        console.log(courseName)
+
+    }
+
+        }
+        
+        test();
+        major_name.textContent = "Major: " + major;
+        semester_count.textContent = "Semester: " + semester;
+        total_credit.textContent = "Total Credits: " + totalCredits;
+        
+
+
+        // document.getElementById("major").textContent = "Major: " +  major;
+        // document.getElementById("total-credits").textContent = "Total Credits: " + totalCredits
+        
+        clone.querySelector("#update").addEventListener("click", async()=>{
+            const curriculumID = query.id;
+          
+          localStorage.setItem("currCurriculum", curriculumID);
+          window.location.assign("./updateCurriculum.html");
+
+        })
+
+
+        clone.querySelector("#delete").addEventListener("click", async () => {
+          const curriculumID = query.id;
+
+          await deleteDoc(doc(db, "Curriculum", curriculumID));
+          alert("Success delete curriculum!");
+          window.location.assign("./curriculum.html");
+        });
+        
+        body.appendChild(clone);
+      });
+
+
+    }
+
+
+
+  </script>

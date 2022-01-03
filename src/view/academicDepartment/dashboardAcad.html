@@ -16,6 +16,7 @@
         <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
         <!-- <a class="navbar-brand" href="#">Hi Academic Department!</a> -->
         <a class="navbar-brand" href="./course.html">Courses</a>
+        <a class="navbar-brand" href="./curriculum.html">Curriculum</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -31,8 +32,8 @@
 
     <br />
     <div class="col text-center">
-        <div class="card text-center" style="width: 18rem" id="courses">
-          <div class="topics" id="courses">
+        <div class="card text-center" style="width: 18rem;" id="courses">
+          <div class="topics" id="courses" >
             
             <div class="card-body">
               <template id="course-template">
@@ -41,8 +42,15 @@
                   <h3 id="course-name"></h3>
                   </div>
                   <div class="topic-count" id="course-credit"></div>
+                  <h5 id="course-description"></h5>
+                  <h5 id="learning-outcome"></h5>
+                  <h5 id="teaching-strategies"></h5>
+                  <h5 id="textbooks"></h5>
+
     <br>
-                  <a href="./courseDetail.html" class="btn btn-primary" id="detail">Course Detail</a>
+                  <a href="#" class="btn btn-primary" id="update">Update Course</a>
+                  <a href="#" class="btn btn-primary" id="delete">Delete Course</a>
+
                  <br>
                 </div>
               </template>
@@ -74,22 +82,50 @@
       const currUID = await UserController.getUserByID(
         localStorage.getItem("activeUserID")
       );
+      
 
     //   console.log(currUID.name);
       querySnapshot.forEach((query) => {
         // console.log(`${query.id} => ${query.data()}`);
-        const { courseName, courseCredits } = query.data();
+        const { courseName, courseCredits, courseDescription, learningOutcome, teachingStrategies, textbooks } = query.data();
         console.log(query.data());
         let body = document.querySelector("#courses");
         let template = document.querySelector("#course-template");
         const clone = template.content.cloneNode(true);
         const course_name = clone.querySelector("#course-name");
         const course_credit = clone.querySelector("#course-credit");
-        clone
-          .querySelector("#detail")
-          .setAttribute("href", "./courseDetail.html?id=" + query.id);
+        const course_description = clone.querySelector("#course-description");
+        const learning_outcome = clone.querySelector("#learning-outcome");
+        const teaching_strategies = clone.querySelector("#teaching-strategies");
+        const textbooks_content = clone.querySelector("#textbooks");
+
+
+        // clone
+        //   .querySelector("#detail")
+        //   .setAttribute("href", "./courseDetail.html?id=" + query.id);
         course_name.textContent = courseName;
         course_credit.textContent = "Course Credit: " + courseCredits;
+        course_description.textContent = "Course Description: " + courseDescription;
+        learning_outcome.textContent = "Learning Outcome: " + learningOutcome;
+        teaching_strategies.textContent = "Teaching Strategies: " + teachingStrategies;
+        textbooks_content.textContent = "Textbooks: " + textbooks;
+
+
+        clone.querySelector("#update").addEventListener("click", async()=>{
+          const courseIDs = query.id;
+          console.log(courseIDs)
+          localStorage.setItem("currCourse", courseIDs);
+          window.location.assign("./updateCourse.html");
+
+        })
+
+        clone.querySelector("#delete").addEventListener("click", async () => {
+          const courseIDs = query.id;
+
+          await deleteDoc(doc(db, "Courses", courseIDs));
+          alert("Success delete course!");
+          window.location.assign("./dashboardAcad.html");
+        });
 
         body.appendChild(clone);
       });

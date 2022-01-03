@@ -16,6 +16,7 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
         <a class="navbar-brand" href="./dashboardAcad.html">Courses</a>
+        <a class="navbar-brand" href="./curriculum.html">Curriculum</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -123,14 +124,18 @@
           courseCredits: document.getElementById("course-credit").value,
           courseDescription:
             document.getElementById("course-description").value,
-        });
-        const docRef2 = await addDoc(collection(db, "Syllabus"), {
-          courseID: doc(db, "Courses", docRef.id),
           learningOutcome: document.getElementById("learning-outcome").value,
           teachingStrategies: document.getElementById("teaching-strategies")
             .value,
           textbooks: document.getElementById("textbooks").value,
         });
+        // const docRef2 = await addDoc(collection(db, "Syllabus"), {
+        //   courseID: doc(db, "Courses", docRef.id),
+        //   learningOutcome: document.getElementById("learning-outcome").value,
+        //   teachingStrategies: document.getElementById("teaching-strategies")
+        //     .value,
+        //   textbooks: document.getElementById("textbooks").value,
+        // });
         console.log("Document written with ID: ", docRef.id);
         alert("Success adding a new course!");
         window.location.assign("./dashboardAcad.html");

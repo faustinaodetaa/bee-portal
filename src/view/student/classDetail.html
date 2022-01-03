@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bee-portal | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
+          <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
+          <a class="navbar-brand" href="./forum.html">Forum</a>
+          <a class="navbar-brand" href="./score.html">Score</a>
+          <a class="navbar-brand" href="./assignment.html">Assignment</a>
+          <a class="navbar-brand" href="../../index.html">Logout</a>
+        </div>
+      </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+    <div class="d-flex justify-content-center">
+      <h3>Classes</h3>
+    </div>
+    <div class="col text-center">
+      <a href="#" class="btn btn-primary" id="forum">See Forum</a>
+      <!-- <a href="./forum.html" class="btn btn-primary">See Forum</a> -->
+
+    </div>
+
+    <br />
+    <h4 id="class-code"></h4>
+    <h5 id="class-day"></h5>
+    <p id="class-shift"></p>
+    <p id="course-name"></p>
+    <p id="lecturer-name"></p>
+    <p><b>People:</b></p>
+    <div class="col text-center">
+        <div class="card text-center" style="width: 18rem" id="classes">
+          <div class="topics" id="classes">
+            
+            <div class="card-body">
+              <template id="class-template">
+                <div class="topic topic1">
+                  <div class="topic-bg"></div>
+                  
+                  <p id="student-name"></p>
+
+                  </div>
+                  
+                 <br>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+    </div>
+    <p> <b>Syllabus:</b> </p>
+    <p id="course-description"></p>
+    <p id="course-credits"></p>
+    <p id="learning-outcome"></p>
+    <p id="teaching-strategies"></p>
+    <p id="textbooks"></p>
+    
+    <p> <b>Attendance:</b> </p>
+    <p id="absence-limit"> </p>
+    <div class="col text-center">
+        <div class="card text-center" style="width: 18rem" id="attendances">
+          <div class="topics" id="attendances">
+            
+            <div class="card-body">
+              <template id="attendance-template">
+                <div class="topic topic1">
+                  <div class="topic-bg"></div>                
+                  <p id="session"></p>
+                  <p id="status"></p>
+                  </div>                
+                 <br>
+                </div>
+                <hr>
+              </template>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+      getDoc,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    const classID = localStorage.getItem("currClass");
+
+
+    window.onload = async () => {
+      const q = query(collection(db, "ClassDetail"), where("classID", "==", classID))
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((docs) => {
+        const { studentID } = docs.data();
+        console.log(docs.data());
+        let body = document.querySelector("#classes");
+        let template = document.querySelector("#class-template");
+        const clone = template.content.cloneNode(true);
+        const student_name = clone.querySelector("#student-name");
+
+        async function getCourseName(courseID){
+          const docRef = doc(db, "Courses", courseID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+          courseName, courseDescription, courseCredits, teachingStrategies, learningOutcome, textbooks, absenceLimit
+        } = docSnap.data();
+        document
+          .getElementById("course-name")
+          .setAttribute("value", courseName);
+          document.getElementById("course-name").textContent = "Course Name: " + courseName;
+          document
+          .getElementById("course-description")
+          .setAttribute("value", courseDescription);
+          document.getElementById("course-description").textContent = "Course Description: " + courseDescription;
+          document
+          .getElementById("course-credits")
+          .setAttribute("value", courseCredits);
+          document.getElementById("course-credits").textContent = "Course Credits: " + courseCredits;
+          document
+          .getElementById("teaching-strategies")
+          .setAttribute("value", teachingStrategies);
+          document.getElementById("teaching-strategies").textContent = "Teaching Strategies: " + teachingStrategies;
+          document
+          .getElementById("learning-outcome")
+          .setAttribute("value", learningOutcome);
+          document.getElementById("learning-outcome").textContent = "Learning Outcome: " + learningOutcome;
+          document
+          .getElementById("textbooks")
+          .setAttribute("value", textbooks);
+          document.getElementById("textbooks").textContent = "Textbooks: " + textbooks;
+          document
+          .getElementById("absence-limit")
+          .setAttribute("value", absenceLimit);
+          document.getElementById("absence-limit").textContent = "Absence Limit: " + absenceLimit;
+    
+        }
+        }
+
+        async function getLecturerName(lecturerID){
+          const docRef = doc(db, "Users", lecturerID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+          userName,
+        } = docSnap.data();
+        document
+          .getElementById("course-name")
+          .setAttribute("value", userName);
+          document.getElementById("lecturer-name").textContent = "Lecturer Name: " +  userName;
+        //   lecturer_name.textContent = "Lecturer Name: " + userName;
+    }
+        }
+
+        async function getStudentName(){
+          const docRef = doc(db, "Users", studentID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+          userName,
+        } = docSnap.data();
+        document
+          .getElementById("student-name")
+          .setAttribute("value", userName);
+          student_name.textContent = userName;
+
+    }
+        }
+
+        async function getClass(){
+          const docRef = doc(db, "Classes", classID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+            classCode, classDay, classShift, courseID, lecturerID,
+        } = docSnap.data();
+        getLecturerName(lecturerID);
+        getCourseName(courseID);
+        localStorage.setItem("currCourse", courseID);
+          document.getElementById("class-code").textContent = "Class Code: " + classCode;
+          document.getElementById("class-day").textContent = "Class Day: " + classDay;
+          document.getElementById("class-shift").textContent = "Class Shift: " + classShift;
+
+
+        }
+        }
+        getStudentName();
+        getClass();
+
+        body.appendChild(clone);
+      });
+
+
+      const q2 = query(collection(db, "Attendances"), where("classID", "==", classID));
+
+      const querySnapshot2 = await getDocs(q2);
+
+      querySnapshot2.forEach((docs2) => {
+
+        const { session, status } = docs2.data();
+        console.log(docs2.data());
+        let body2 = document.querySelector("#attendances");
+        let template2 = document.querySelector("#attendance-template");
+        const clone2 = template2.content.cloneNode(true);
+        const session_count = clone2.querySelector("#session");
+        const status_content = clone2.querySelector("#status");
+
+
+        session_count.textContent = "Session: " + session;
+        status_content.textContent = "Attendance Status: " + status;
+        
+
+        // clone2.querySelector("#forum").addEventListener("click", async () => {
+        //   localStorage.setItem("currentClass", classID)
+          
+        //   window.location.assign("./forum.html");
+        // });
+
+        body2.appendChild(clone2);
+      });
+
+      document.getElementById("forum").addEventListener("click", async () => {
+          localStorage.setItem("currentClass", classID)
+          
+          window.location.assign("./forum.html");
+        });
+
+
+    };
+    const currUID = await UserController.getUserByID(
+      localStorage.getItem("activeUserID")
+    );
+    document.getElementById("name").textContent = "Hi " + currUID.name + "!";
+  </script>
+</html>

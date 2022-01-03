@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bee-portal | Dashboard</title>
+    <title>bee-portal | Dashboard Proctor</title>
     <link
       rel="stylesheet"
       href="https://bootswatch.com/5/minty/bootstrap.min.css"
@@ -15,7 +15,7 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardProctor.html">bee-portal</a>
         <!-- <a class="navbar-brand" href="#">Hi Academic Department!</a> -->
-        <a class="navbar-brand" href="./dashboardProctor.html">Attendance</a>
+        <a class="navbar-brand" href="./dashboardProctor.html">Classes</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -23,31 +23,30 @@
       <h2 id="name"></h2>
     </div>
     <div class="d-flex justify-content-center">
-      <h3>Student Attendances</h3>
-    </div>
-    <div class="col text-center">
-      <a href="./addAttendance.html" class="btn btn-primary">Submit Attendance</a>
+      <h3>Classes</h3>
     </div>
 
     <br />
     <div class="col text-center">
-        <div class="card text-center" style="width: 18rem" id="attendances">
-          <div class="topics" id="attendances">
-            
+        <div class="card text-center" style="width: 18rem" id="exams">
+          <div class="topics" id="exams">
             <div class="card-body">
-              <template id="attendance-template">
+              <template id="exam-template">
                 <div class="topic topic1">
                   <div class="topic-bg"></div>
-                  <h4 id="student-name"></h4>
-                  <h5 id="class-name"></h5>
-                  <p id="status"></p>
-                  <p id="session"></p>
+                  <h4 id="exam-class"></h4>
+                  <h4 id="exam-type"></h4>
+                  <h5 id="class-code"></h5>
+                  <p id="proctor-name"></p>
+                  <p id="start-date"></p>
+                  <p id="end-date"></p>
+                  <!-- <p id="student-name"></p> -->
+                  <a href="#" class="btn btn-primary" id="detail">Exam Class Detail</a>
+
+ 
+                  <br>
                   <hr>
                   </div>
-                  <a href="./updateCourse.html" class="btn btn-primary" id="update">Update Attendance</a>
-                  <hr>
-                  <!-- <div class="topic-count" id="student-attendance"></div> -->
-    <br>
                   
                  <br>
                 </div>
@@ -59,6 +58,7 @@
 
   </body>
 
+
   <script type="module">
     import {
       Firestore,
@@ -66,7 +66,8 @@
       getDocs,
       getFirestore,
       doc,
-      deleteDoc, query, where
+      deleteDoc,
+      getDoc, query, where
     } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
     import { firebaseApp } from "../../firebase.js";
     import { UserController } from "../../controller/UserController.js";
@@ -74,41 +75,66 @@
     const db = getFirestore(firebaseApp);
 
     window.onload = async () => {
-      const querySnapshot = await getDocs(collection(db, "Attendances"));
-      const currUID = await UserController.getUserByID(
-        localStorage.getItem("activeUserID")
-      );
-      
+      const currUID = localStorage.getItem("activeUserID")
+        console.log(currUID);
+      const q = query(collection(db, "Exams"), where("proctorID", "==", currUID));
+      const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach( async(query) => {
-        const { classID, userID, session, status } = query.data();
-        console.log(query.data());
-
-//         const q = query(collection(db, "Users"));
-// console.log(q.id);
-//         const q2 = query(collection(db, "Users"),where(q.id, "==", doc(db, "Users", userID.id)));
-//         console.log(q2);
-//         console.log(userID.id);
-//     console.log(classID.id)
-        
-
-        let body = document.querySelector("#attendances");
-        let template = document.querySelector("#attendance-template");
+      querySnapshot.forEach((docs) => {
+        const { examClass, examType, classID, proctorID, startDate, endDate } = docs.data();
+        console.log(docs.data());
+        let body = document.querySelector("#exams");
+        let template = document.querySelector("#exam-template");
         const clone = template.content.cloneNode(true);
-        const class_name = clone.querySelector("#class-name");
-        const student_name = clone.querySelector("#student-name");
-        const attendance_session = clone.querySelector("#session");
-        const attendance_status = clone.querySelector("#status");
-        clone
-          .querySelector("#update")
-          .setAttribute("href", "./updateAttendance.html?id=" + query.id);
+        const exam_class = clone.querySelector("#exam-class");
+        const exam_type = clone.querySelector("#exam-type");
+        const class_code = clone.querySelector("#class-code");
+        const proctor_name = clone.querySelector("#proctor-name");
+        const start_date = clone.querySelector("#start-date");
+        const end_date = clone.querySelector("#end-date");
 
+        async function getClassCode(){
+          const docRef = doc(db, "Classes", classID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+          classCode,
+        } = docSnap.data();
+        document
+          .getElementById("class-code")
+          .setAttribute("value", classCode);
+          class_code.textContent = "Class Code: " + classCode;
+    }
+        }
 
-        class_name.textContent = "Class Code: "+  classID;
-        student_name.textContent = "Student ID: " + userID;
-        attendance_session.textContent = "Session: " + session;
-        attendance_status.textContent = "Status: " + status;
+        async function getProctorName(){
+          const docRef = doc(db, "Users", proctorID);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+        const {
+          userName,
+        } = docSnap.data();
+        document
+          .getElementById("proctor-name")
+          .setAttribute("value", userName);
+          proctor_name.textContent = "Proctor Name: " + userName;
+    }
+        }
 
+        getClassCode();
+        getProctorName();
+        exam_class.textContent = "Exam Room: " + examClass;
+        exam_type.textContent = "Exam Type: " + examType;
+        start_date.textContent = "Start Date: " + startDate;
+        end_date.textContent = "End Date: " +  endDate;
+
+        clone.querySelector("#detail").addEventListener("click", async () =>{
+          const classIDs = classID;
+          localStorage.setItem("currClass", classIDs);
+          const examID = docs.id;
+          localStorage.setItem("currExam", examID);
+          window.location.assign("./classDetail.html");
+        })
 
         body.appendChild(clone);
       });

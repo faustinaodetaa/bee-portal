@@ -23,29 +23,29 @@
       <h2 id="name"></h2>
     </div>
     <div class="d-flex justify-content-center">
-      <h3>Classes</h3>
+      <h3>Exam</h3>
     </div>
     <div class="col text-center">
-      <a href="./addClass.html" class="btn btn-primary">Add Class</a>
+      <a href="./addExam.html" class="btn btn-primary">Create Exam</a>
 
     </div>
 
     <br />
     <div class="col text-center">
-        <div class="card text-center" style="width: 18rem" id="classes">
-          <div class="topics" id="classes">
+        <div class="card text-center" style="width: 18rem" id="exams">
+          <div class="topics" id="exams">
             
             <div class="card-body">
-              <template id="class-template">
+              <template id="exam-template">
                 <div class="topic topic1">
                   <div class="topic-bg"></div>
-                  <h4 id="class-code"></h4>
-                  <h5 id="class-day"></h5>
-                  <p id="class-shift"></p>
-                  <p id="course-name"></p>
-                  <p id="lecturer-name"></p>
+                  <h4 id="exam-class"></h4>
+                  <h4 id="exam-type"></h4>
+                  <h5 id="class-code"></h5>
+                  <p id="proctor-name"></p>
+                  <p id="start-date"></p>
+                  <p id="end-date"></p>
                   <!-- <p id="student-name"></p> -->
-                  <a href="#" class="btn btn-primary" id="detail">Class Detail</a>
  
                   <br>
                   <hr>
@@ -77,66 +77,60 @@
     const db = getFirestore(firebaseApp);
 
     window.onload = async () => {
-      const querySnapshot = await getDocs(collection(db, "Classes"));
+      const querySnapshot = await getDocs(collection(db, "Exams"));
       const currUID = await UserController.getUserByID(
         localStorage.getItem("activeUserID")
       );
 
       querySnapshot.forEach((query) => {
-        const { classCode, classDay, classShift, courseID, lecturerID, studentID } = query.data();
+        const { classID, proctorID, examClass, examType, startDate, endDate } = query.data();
         console.log(query.data());
-        let body = document.querySelector("#classes");
-        let template = document.querySelector("#class-template");
+        let body = document.querySelector("#exams");
+        let template = document.querySelector("#exam-template");
         const clone = template.content.cloneNode(true);
+        const exam_class = clone.querySelector("#exam-class");
+        const exam_type = clone.querySelector("#exam-type");
         const class_code = clone.querySelector("#class-code");
-        const class_day = clone.querySelector("#class-day");
-        const class_shift = clone.querySelector("#class-shift");
-        const course_name = clone.querySelector("#course-name");
-        const lecturer_name = clone.querySelector("#lecturer-name");
-        // const student_name = clone.querySelector("#student-name");
+        const proctor_name = clone.querySelector("#proctor-name");
+        const start_date = clone.querySelector("#start-date");
+        const end_date = clone.querySelector("#end-date");
 
-        async function getCourseName(){
-          const docRef = doc(db, "Courses", courseID);
+
+        async function getClassCode(){
+          const docRef = doc(db, "Classes", classID);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
         const {
-          courseName,
+          classCode,
         } = docSnap.data();
         document
-          .getElementById("course-name")
-          .setAttribute("value", courseName);
-          course_name.textContent = "Course Name: " + courseName;
+          .getElementById("class-code")
+          .setAttribute("value", classCode);
+          class_code.textContent = "Class Code: " + classCode;
     }
         }
 
-        async function getLecturerName(){
-          const docRef = doc(db, "Users", lecturerID);
+        async function getProctorName(){
+          const docRef = doc(db, "Users", proctorID);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
         const {
           userName,
         } = docSnap.data();
         document
-          .getElementById("course-name")
+          .getElementById("proctor-name")
           .setAttribute("value", userName);
-          lecturer_name.textContent = "Lecturer Name: " + userName;
+          proctor_name.textContent = "Proctor Name: " + userName;
     }
         }
 
-        getCourseName();
-        getLecturerName();
-        class_code.textContent = classCode;
-        class_day.textContent = "Class Day: " + classDay;
-        class_shift.textContent = "Class Shift: " + classShift;
-        // course_name.textContent = "Course Name";
-        // lecturer_name.textContent = "Lecturer Name";
-        // student_name.textContent = "Student Name";
+        getClassCode();
+        getProctorName();
+        exam_class.textContent = "Exam Room: " + examClass;
+        exam_type.textContent = "Exam Type: " + examType;
+        start_date.textContent = "Start Date: " + startDate;
+        end_date.textContent = "End Date: " +  endDate;
 
-        clone.querySelector("#detail").addEventListener("click", async () =>{
-          const classID = query.id;
-          localStorage.setItem("currClass", classID);
-          window.location.assign("./classDetail.html");
-        })
 
         body.appendChild(clone);
       });

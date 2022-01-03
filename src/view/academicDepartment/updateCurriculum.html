@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Curriculum</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardAcad.html">Courses</a>
+        <a class="navbar-brand" href="./curriculum.html">Curriculum</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="form">
+      <div class="d-flex justify-content-center" style="margin-top: 100px">
+        <h3>Update Curriculum</h3>
+      </div>
+      <div style="margin: 100px">
+        <fieldset>
+          <div class="form-group">
+            <label for="major-name" class="form-label mt-4">Major: </label>
+            <input
+              id="major-name"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="total-credits" class="form-label mt-4"
+              >Total Credits:
+            </label>
+            <input
+              id="total-credits"
+              class="form-control"
+              type="number"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="semester" class="form-label mt-4">Semester: </label>
+            <input
+              id="semester"
+              class="form-control"
+              type="number"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="course1" class="form-label mt-4">Course 1: </label>
+            <input
+              id="course1"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="course2" class="form-label mt-4">Course 2: </label>
+            <input
+              id="course2"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <br />
+          <div class="text-center">
+            <button type="text" class="btn btn-primary" id="updateBtn">
+              Update Curriculum
+            </button>
+          </div>
+          <hr />
+        </fieldset>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      addDoc,
+      getFirestore,
+      updateDoc,
+      doc,
+      getDoc,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+
+    const db = getFirestore(firebaseApp);
+    const curriculumID = localStorage.getItem("currCurriculum");
+    // console.log(courseID);
+
+    window.onload = async () => {
+      const docRef = doc(db, "Curriculum", curriculumID);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const { major, totalCredits, semester, course1, course2 } =
+          docSnap.data();
+
+        document.getElementById("major-name").setAttribute("value", major);
+        document
+          .getElementById("total-credits")
+          .setAttribute("value", totalCredits);
+        document.getElementById("semester").setAttribute("value", semester);
+        document.getElementById("course1").setAttribute("value", course1);
+        document.getElementById("course2").setAttribute("value", course2);
+
+        console.log("Document data:", docSnap.data());
+      }
+    };
+
+    document.getElementById("updateBtn").addEventListener("click", async () => {
+      const query = doc(db, "Curriculum", curriculumID);
+      await updateDoc(query, {
+        major: document.getElementById("major-name").value,
+        totalCredits: document.getElementById("total-credits").value,
+        semester: document.getElementById("semester").value,
+        course1: document.getElementById("course1").value,
+        course2: document.getElementById("course2").value,
+      });
+
+      alert("Success Updating curriculum!");
+      window.location.assign("./curriculum.html");
+    });
+  </script>
+</html>

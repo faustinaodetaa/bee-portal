@@ -16,6 +16,7 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardAcad.html">bee-portal</a>
         <a class="navbar-brand" href="./dashboardAcad.html">Courses</a>
+        <a class="navbar-brand" href="./curriculum.html">Curriculum</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -34,7 +35,6 @@
               class="form-control"
               type="text"
               placeholder=" "
-              disabled
             />
           </div>
           <div class="form-group">
@@ -60,35 +60,33 @@
             />
           </div>
           <div class="form-group">
-            <label for="course-credit" class="form-label mt-4"
+            <label for="learning-outcome" class="form-label mt-4"
               >Learning Outcome:
             </label>
             <input
-              id="course-credit"
+              id="learning-outcome"
               class="form-control"
-              type="number"
+              type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="course-credit" class="form-label mt-4"
-              >Teaching Strategie:
+            <label for="teaching-strategies" class="form-label mt-4"
+              >Teaching Strategies:
             </label>
             <input
-              id="course-credit"
+              id="teaching-strategies"
               class="form-control"
-              type="number"
+              type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="course-credit" class="form-label mt-4"
-              >Textbooks:
-            </label>
+            <label for="textbooks" class="form-label mt-4">Textbooks: </label>
             <input
-              id="course-credit"
+              id="textbooks"
               class="form-control"
-              type="number"
+              type="text"
               placeholder=" "
             />
           </div>
@@ -112,17 +110,59 @@
       getFirestore,
       updateDoc,
       doc,
+      getDoc,
     } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
     import { firebaseApp } from "../../firebase.js";
 
     const db = getFirestore(firebaseApp);
     const courseID = localStorage.getItem("currCourse");
     console.log(courseID);
+
+    window.onload = async () => {
+      const docRef = doc(db, "Courses", courseID);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const {
+          courseName,
+          courseCredits,
+          courseDescription,
+          learningOutcome,
+          teachingStrategies,
+          textbooks,
+        } = docSnap.data();
+
+        document
+          .getElementById("course-name")
+          .setAttribute("value", courseName);
+        document
+          .getElementById("course-credit")
+          .setAttribute("value", courseCredits);
+        document
+          .getElementById("course-description")
+          .setAttribute("value", courseDescription);
+        document
+          .getElementById("learning-outcome")
+          .setAttribute("value", learningOutcome);
+        document
+          .getElementById("teaching-strategies")
+          .setAttribute("value", teachingStrategies);
+        document.getElementById("textbooks").setAttribute("value", textbooks);
+
+        console.log("Document data:", docSnap.data());
+      }
+    };
+
     document.getElementById("updateBtn").addEventListener("click", async () => {
       const query = doc(db, "Courses", courseID);
       await updateDoc(query, {
+        courseName: document.getElementById("course-name").value,
         courseCredits: document.getElementById("course-credit").value,
         courseDescription: document.getElementById("course-description").value,
+        learningOutcome: document.getElementById("learning-outcome").value,
+        teachingStrategies: document.getElementById("teaching-strategies")
+          .value,
+        textbooks: document.getElementById("textbooks").value,
       });
 
       alert("Success Updating course!");
