@@ -16,13 +16,260 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
         <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
-        <a class="navbar-brand" href="./attendance.html">Attendance</a>
-        <a class="navbar-brand" href="./forum.html">Forum</a>
-        <a class="navbar-brand" href="./assignment.html">Assignment</a>
-        <a class="navbar-brand" href="./scoring.html">Scoring</a>
-
+        <a class="navbar-brand" href="./exam.html">Exam</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
+
+    <br />
+    <h4 id="class-code"></h4>
+    <p id="course-name"></p>
+
+    <h3>Individual Assignment</h3>
+    <a href="#" class="btn btn-primary" id="individual">Add Invididual Assignment</a>
+
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="assignments">
+        <div class="topics" id="assignments">
+          
+          <div class="card-body">
+            <template id="assignment-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>                
+                <p id="assignment-name"></p>
+                <a href="#" class="btn btn-primary" id="detail">Assignment Detail</a>
+                  <br>
+                  <hr>
+
+                </div>
+                
+               <br>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+  </div>
+
+    <h3>Group Assignment</h3>
+    <a href="#" class="btn btn-primary" id="group">Add Group Assignment</a>
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="group-assignments">
+        <div class="topics" id="group-assignments">
+          
+          <div class="card-body">
+            <template id="group-assignment-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>                
+                <p id="group-assignment-name"></p>
+                <a href="#" class="btn btn-primary" id="detail">Assignment Detail</a>
+                  <br>
+                  <hr>
+
+                </div>
+                
+               <br>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+  </div>
+
   </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+      getDoc,
+      query,
+      where,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    const classID = localStorage.getItem("currentClass");
+
+    window.onload = async () => {
+      const q = query(
+        collection(db, "Assignments"),
+        where("classID", "==", classID)
+      );
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((docs) => {
+        const { deadline, title, startDate, content } = docs.data();
+        console.log(docs.data());
+        let body = document.querySelector("#assignments");
+        let template = document.querySelector("#assignment-template");
+        const clone = template.content.cloneNode(true);
+        const assignment_name = clone.querySelector("#assignment-name");
+        // const assignment_case = clone.querySelector("#assignment-case");
+        // const start_date = clone.querySelector("#start-date");
+        // const end_date = clone.querySelector("#end-date");
+
+        assignment_name.textContent = title;
+        // assignment_case.textContent = "Case: " + content;
+        // start_date.textContent = "Upload Date: " + startDate;
+        // end_date.textContent = "Deadline: " + deadline;
+
+
+        async function getCourseName(courseID) {
+          const docRef = doc(db, "Courses", courseID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const {
+              courseName,
+              courseDescription,
+              courseCredits,
+              teachingStrategies,
+              learningOutcome,
+              textbooks,
+              absenceLimit,
+            } = docSnap.data();
+            document
+              .getElementById("course-name")
+              .setAttribute("value", courseName);
+            document.getElementById("course-name").textContent =
+              "Course Name: " + courseName;
+          }
+        }
+
+
+        async function getStudentName() {
+          const docRef = doc(db, "Users", studentID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document
+              .getElementById("student-name")
+              .setAttribute("value", userName);
+            student_name.textContent = userName;
+          }
+        }
+
+        async function getClass() {
+          const docRef = doc(db, "Classes", classID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { classCode, classDay, classShift, courseID, lecturerID } =
+              docSnap.data();
+           
+            getCourseName(courseID);
+            localStorage.setItem("currCourse", courseID);
+            document.getElementById("class-code").textContent =
+              "Class Code: " + classCode;
+          }
+        }
+      
+        getClass();
+
+        clone.querySelector("#detail").addEventListener("click", async () =>{
+          localStorage.setItem("currAssignment", docs.id);
+          window.location.assign("./assignmentDetail.html");
+        })
+
+        body.appendChild(clone);
+      });
+
+      const q2 = query(
+        collection(db, "GroupAssignments"),
+        where("classID", "==", classID)
+      );
+      const querySnapshot2 = await getDocs(q2);
+
+      querySnapshot2.forEach((docs2) => {
+        const { deadline, title, startDate, content } = docs2.data();
+        console.log(docs2.data());
+        let body2 = document.querySelector("#group-assignments");
+        let template2 = document.querySelector("#group-assignment-template");
+        const clone2 = template2.content.cloneNode(true);
+        const group_assignment_name = clone2.querySelector("#group-assignment-name");
+        // const assignment_case = clone.querySelector("#assignment-case");
+        // const start_date = clone.querySelector("#start-date");
+        // const end_date = clone.querySelector("#end-date");
+
+        group_assignment_name.textContent = title;
+        // assignment_case.textContent = "Case: " + content;
+        // start_date.textContent = "Upload Date: " + startDate;
+        // end_date.textContent = "Deadline: " + deadline;
+
+
+        async function getCourseName(courseID) {
+          const docRef = doc(db, "Courses", courseID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const {
+              courseName,
+              courseDescription,
+              courseCredits,
+              teachingStrategies,
+              learningOutcome,
+              textbooks,
+              absenceLimit,
+            } = docSnap.data();
+            document
+              .getElementById("course-name")
+              .setAttribute("value", courseName);
+            document.getElementById("course-name").textContent =
+              "Course Name: " + courseName;
+          }
+        }
+
+
+        async function getStudentName() {
+          const docRef = doc(db, "Users", studentID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document
+              .getElementById("student-name")
+              .setAttribute("value", userName);
+            student_name.textContent = userName;
+          }
+        }
+
+        async function getClass() {
+          const docRef = doc(db, "Classes", classID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { classCode, classDay, classShift, courseID, lecturerID } =
+              docSnap.data();
+           
+            getCourseName(courseID);
+            localStorage.setItem("currCourse", courseID);
+            document.getElementById("class-code").textContent =
+              "Class Code: " + classCode;
+          }
+        }
+      
+        getClass();
+
+        clone2.querySelector("#detail").addEventListener("click", async () =>{
+          localStorage.setItem("currGroupAssignment", docs2.id);
+          window.location.assign("./groupAssignmentDetail.html");
+        })
+
+        body2.appendChild(clone2);
+      });
+
+      document.getElementById("individual").addEventListener("click", async () => {
+        localStorage.setItem("currClass", classID);
+        window.location.assign("./addIndividualAssignment.html");
+      })
+      document.getElementById("group").addEventListener("click", async () => {
+        localStorage.setItem("currClass", classID);
+        window.location.assign("./addGroupAssignment.html");
+      })
+
+
+    };
+  </script>
 </html>

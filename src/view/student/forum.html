@@ -15,9 +15,6 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
         <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
-        <a class="navbar-brand" href="./forum.html">Forum</a>
-        <a class="navbar-brand" href="./score.html">Score</a>
-        <a class="navbar-brand" href="./assignment.html">Assignment</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -74,6 +71,7 @@
     const db = getFirestore(firebaseApp);
 
     const currClass = localStorage.getItem("currentClass");
+    const currUser = localStorage.getItem("activeUserID");
     console.log(currClass);
 
     window.onload = async () => {
@@ -114,16 +112,25 @@
 
         clone.querySelector("#update").addEventListener("click", async () =>{
           const forumID = query.id;
-          localStorage.setItem("currForum", forumID);
-          window.location.assign("./updateForum.html");
+          if(userID != currUser){
+            alert("cannot update forum!");
+          }else{
+            localStorage.setItem("currForum", forumID);
+            window.location.assign("./updateForum.html");
+            
+          }
         })
 
         clone.querySelector("#delete").addEventListener("click", async () => {
           const forumID = query.id;
+          if(userID != currUser){
+            alert("Cannot delete forum!");
+          }else{
+            await deleteDoc(doc(db, "Forums", forumID));
+            alert("Success delete forum!");
+            window.location.assign("./forum.html");
 
-          await deleteDoc(doc(db, "Forums", forumID));
-          alert("Success delete forum!");
-          window.location.assign("./forum.html");
+          }
 
         })
 

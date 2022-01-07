@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignmet</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./exam.html">Exam</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+
+    <br />
+    <p id="assignment-name"></p>
+    <p id="assignment-case"></p>
+    <p id="start-date"></p>
+    <p id="end-date"></p>
+    <p><b>Answers:</b></p>
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="answers">
+        <div class="topics" id="answers">         
+          <div class="card-body">
+            <template id="answer-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>
+                <p id="student-name"></p>
+                <p id="upload-date"></p>
+                <p id="answer"></p>
+                </div>
+                <hr>              
+               <br>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+      getDoc,
+      query,
+      where,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    const assignmentID = localStorage.getItem("currAssignment");
+
+    window.onload = async () => {
+        const docRef = doc(db, "Assignments", assignmentID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const {
+              title, content, startDate, deadline
+            } = docSnap.data();
+            document
+              .getElementById("assignment-name")
+              .setAttribute("value", title);
+            document.getElementById("assignment-name").textContent =
+              "Assignment : " + title;
+              document.getElementById("assignment-case").textContent =
+              "Case : " + content;
+              document.getElementById("start-date").textContent =
+              "Upload Date : " + startDate;
+              document.getElementById("end-date").textContent =
+              "Deadline : " + deadline;
+          }
+
+    const q = query(collection(db, "AssignmentAnswers"), where("assignmentID", "==", assignmentID))
+      const querySnapshot = await getDocs(q);
+
+
+      querySnapshot.forEach((docs) => {
+        const { answer, assingmentID, studentID, uploadDate } = docs.data();
+        console.log(docs.data());
+        let body = document.querySelector("#answers");
+        let template = document.querySelector("#answer-template");
+        const clone = template.content.cloneNode(true);
+        const student_name = clone.querySelector("#student-name");
+        const upload_date = clone.querySelector("#upload-date");
+        const answer_content = clone.querySelector("#answer");
+
+        upload_date.textContent = "Upload Date: " + uploadDate;
+        answer_content.textContent = "Answer: " + answer;
+
+
+        async function getStudentName() {
+          const docRef = doc(db, "Users", studentID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document
+              .getElementById("student-name")
+              .setAttribute("value", userName);
+            student_name.textContent = userName;
+          }
+        }
+
+       
+      
+        getStudentName();
+
+        body.appendChild(clone);
+      });
+    };
+  </script>
+</html>

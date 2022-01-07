@@ -138,11 +138,16 @@
     clone.querySelector('#finalize-score').addEventListener('click', async () => {
       const q = doc(db, "Scores", query.id);
           // console.log(q.data());
+        if(finalize == "Finalized"){
+          alert("Already finalized!");
+        }else{
           await updateDoc(q, {
             finalize: "Finalized"
           });
           alert('Success finalized score!')
           window.location.assign("./dashboardScoring.html");
+
+        }
           })
 
         body.appendChild(clone);

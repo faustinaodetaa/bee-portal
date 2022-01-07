@@ -15,9 +15,6 @@
       <div class="container-fluid">
         <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
         <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
-        <a class="navbar-brand" href="./forum.html">Forum</a>
-        <a class="navbar-brand" href="./score.html">Score</a>
-        <a class="navbar-brand" href="./assignment.html">Assignment</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -92,11 +89,24 @@
     const db = getFirestore(firebaseApp);
 
     const currForum = localStorage.getItem("currForum");
+    const currUser = localStorage.getItem("activeUserID");
 
     window.onload = async () => {
+      const docRef = doc(db, "Forums", currForum);
+            const docSnap = await getDoc(docRef);
+            if(docSnap.exists()){
+              const{ userID, title, content} = docSnap.data();
+              document.getElementById("forum-name").textContent = title;
+              document.getElementById("forum-content").textContent = content;
+              
+            }
+            
       const q = query(collection(db, "ForumReplies"), where("forumID", "==", currForum));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((query) => {
+
+        
+
         const { userID, forumID, content } = query.data();
 
         console.log(query.data());
@@ -121,31 +131,30 @@
       reply_content.textContent = content;
 
           
-          async function getForum(){
-            const docRef = doc(db, "Forums", currForum);
-            const docSnap = await getDoc(docRef);
-            if(docSnap.exists()){
-              const{ userID, title, content} = docSnap.data();
-              document.getElementById("forum-name").textContent = title;
-              document.getElementById("forum-content").textContent = content;
-              
-            }
-          }
-          getForum();
+         
           getUserName();
 
           clone.querySelector("#update").addEventListener("click", async () =>{
           const forumReplyID = query.id;
-          localStorage.setItem("currForumReply", forumReplyID);
-          window.location.assign("./updateForumReply.html");
+          if(userID != currUser){
+            alert("Cannot update forum reply!");
+          }else{
+            localStorage.setItem("currForumReply", forumReplyID);
+            window.location.assign("./updateForumReply.html");
+          }
         })
 
         clone.querySelector("#delete").addEventListener("click", async () => {
           const forumReplyID = query.id;
+          if(userID != currUser){
+            alert("Cannot delete forum reply!");
+          }else{
+            await deleteDoc(doc(db, "ForumReplies", forumReplyID));
+            alert("Success delete reply!");
+            window.location.assign("./forumDetail.html");
 
-          await deleteDoc(doc(db, "ForumReplies", forumReplyID));
-          alert("Success delete reply!");
-          window.location.assign("./forumDetail.html");
+          }
+
 
         })
 
@@ -154,17 +163,12 @@
 
       document.getElementById("submitBtn").addEventListener("click", async () => {
       try {
-        // console.log(document.getElementById("forum-content").value);
-        // console.log(localStorage.getItem("activeUserID"));
-        // console.log(currForum);
-
         const docRef = await addDoc(collection(db, "ForumReplies"), {
           userID: localStorage.getItem("activeUserID"),
           forumID: currForum,
           content: document.getElementById("content-reply").value,
-
         });
-        // console.log("Document written with ID: ", docRef.id);
+
         alert("Success reply forum!");
         window.location.assign("./forumDetail.html");
       } catch (e) {

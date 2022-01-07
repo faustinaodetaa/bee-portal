@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam Class Detail</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./exam.html">Exam</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+
+    <br />
+    <h4 id="exam-class"></h4>
+    <h4 id="exam-type"></h4>
+    <h5 id="class-code"></h5>
+    <p id="proctor-name"></p>
+    <p id="start-date"></p>
+    <p id="end-date"></p>
+    <p>Students:</p>
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="classes">
+        <div class="topics" id="classes">
+          <div class="card-body">
+            <template id="class-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>
+                <p id="student-name"></p>
+              </div>
+              <br />
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p>Attendances:</p>
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="attendances">
+        <div class="topics" id="attendances">
+          <div class="card-body">
+            <template id="attendance-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>
+                <p id="student-name2"></p>
+                <p id="status"></p>
+                <p id="cheating"></p>
+              </div>
+              <br />
+              <hr />
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form">
+      <div class="d-flex justify-content-center" style="margin-top: 100px">
+        <h3>Submit Student Attendance</h3>
+      </div>
+      <div style="margin: 100px">
+        <fieldset>
+          <div class="form-group">
+            <label for="user-id" class="form-label mt-4">Student ID: </label>
+            <input
+              id="user-id"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="status-form" class="form-label mt-4">Status: </label>
+            <input
+              id="status-form"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="cheating-form" class="form-label mt-4"
+              >Cheating:
+            </label>
+            <input
+              id="cheating-form"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <br />
+          <div class="text-center">
+            <button type="text" class="btn btn-primary" id="submitBtn">
+              Submit Attendance
+            </button>
+          </div>
+          <hr />
+        </fieldset>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      getDocs,
+      getFirestore,
+      doc,
+      deleteDoc,
+      getDoc,
+      query,
+      where,
+      addDoc,
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+    import { UserController } from "../../controller/UserController.js";
+
+    const db = getFirestore(firebaseApp);
+
+    const classIDs = localStorage.getItem("currClass");
+    const examIDs = localStorage.getItem("currExam");
+    // console.log(examID);
+
+    window.onload = async () => {
+      const q = query(
+        collection(db, "ClassDetail"),
+        where("classID", "==", classIDs)
+      );
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((docs) => {
+        const { studentID } = docs.data();
+        console.log(docs.data());
+        let body = document.querySelector("#classes");
+        let template = document.querySelector("#class-template");
+        const clone = template.content.cloneNode(true);
+        const student_name = clone.querySelector("#student-name");
+
+        async function getStudentName() {
+          const docRef = doc(db, "Users", studentID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document
+              .getElementById("student-name")
+              .setAttribute("value", userName);
+            student_name.textContent = userName;
+          }
+        }
+
+        async function getClassCode() {
+          const docRef = doc(db, "Classes", classIDs);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { classCode } = docSnap.data();
+            document.getElementById("class-code").textContent =
+              "Class Code: " + classCode;
+          }
+        }
+
+        async function getProctorName(proctorID) {
+          const docRef = doc(db, "Users", proctorID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document.getElementById("proctor-name").textContent =
+              "Proctor Name: " + userName;
+          }
+        }
+
+        async function getExam() {
+          const docRef = doc(db, "Exams", examIDs);
+          const docSnap = await getDoc(docRef);
+          console.log(docRef);
+
+          if (docSnap.exists()) {
+            const {
+              examClass,
+              examType,
+              classID,
+              proctorID,
+              startDate,
+              endDate,
+            } = docSnap.data();
+            getProctorName(proctorID);
+            document.getElementById("exam-class").textContent =
+              "Exam Class: " + examClass;
+            document.getElementById("exam-type").textContent =
+              "Exam Type: " + examType;
+            document.getElementById("start-date").textContent =
+              "Start Date: " + startDate;
+            document.getElementById("end-date").textContent =
+              "End Date: " + endDate;
+          }
+        }
+
+        getClassCode();
+        getStudentName();
+        getExam();
+
+        body.appendChild(clone);
+      });
+
+      const q2 = query(
+        collection(db, "ExamAttendances"),
+        where("examID", "==", examIDs)
+      );
+      const querySnapshot2 = await getDocs(q2);
+
+      querySnapshot2.forEach((docs2) => {
+        const { cheating, status, userID, examID } = docs2.data();
+        console.log(docs2.data());
+        let body2 = document.querySelector("#attendances");
+        let template2 = document.querySelector("#attendance-template");
+        const clone2 = template2.content.cloneNode(true);
+        const student_name2 = clone2.querySelector("#student-name2");
+        const status2 = clone2.querySelector("#status");
+        const cheating2 = clone2.querySelector("#cheating");
+
+        async function getStudentName2() {
+          const docRef = doc(db, "Users", userID);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { userName } = docSnap.data();
+            document
+              .getElementById("student-name2")
+              .setAttribute("value", userName);
+            student_name2.textContent = "Student Name: " + userName;
+          }
+        }
+
+        getStudentName2();
+        status2.textContent = "Attendance Status: " + status;
+        cheating2.textContent = "Is Student Cheating?: " + cheating;
+
+        body2.appendChild(clone2);
+      });
+    };
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      try {
+        const docRef = await addDoc(collection(db, "ExamAttendances"), {
+          userID: document.getElementById("user-id").value,
+          examID: localStorage.getItem("currExam"),
+          status: document.getElementById("status-form").value,
+          cheating: document.getElementById("cheating-form").value,
+        });
+
+        console.log("Document written with ID: ", docRef.id);
+        alert("Success submitting student attendance!");
+        window.location.assign("./examClassDetail.html");
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    });
+
+    const currUID = await UserController.getUserByID(
+      localStorage.getItem("activeUserID")
+    );
+    document.getElementById("name").textContent = "Hi " + currUID.name + "!";
+  </script>
+</html>

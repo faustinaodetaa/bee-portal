@@ -12,17 +12,13 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
-          <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
-          <a class="navbar-brand" href="./attendance.html">Attendance</a>
-          <a class="navbar-brand" href="./forum.html">Forum</a>
-          <a class="navbar-brand" href="./assignment.html">Assignment</a>
-          <a class="navbar-brand" href="./scoring.html">Scoring</a>
-  
-          <a class="navbar-brand" href="../../index.html">Logout</a>
-        </div>
-      </nav>
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./exam.html">Exam</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
     <div class="d-flex justify-content-center">
       <h2 id="name"></h2>
     </div>
@@ -96,6 +92,16 @@
     const currForum = localStorage.getItem("currForum");
 
     window.onload = async () => {
+      const docRef = doc(db, "Forums", currForum);
+            const docSnap = await getDoc(docRef);
+            if(docSnap.exists()){
+              const{ userID, title, content} = docSnap.data();
+              document.getElementById("forum-name").textContent = title;
+              document.getElementById("forum-content").textContent = content;
+              
+            }
+
+
       const q = query(collection(db, "ForumReplies"), where("forumID", "==", currForum));
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((query) => {
@@ -123,17 +129,10 @@
       reply_content.textContent = content;
 
           
-          async function getForum(){
-            const docRef = doc(db, "Forums", currForum);
-            const docSnap = await getDoc(docRef);
-            if(docSnap.exists()){
-              const{ userID, title, content} = docSnap.data();
-              document.getElementById("forum-name").textContent = title;
-              document.getElementById("forum-content").textContent = content;
-              
-            }
-          }
-          getForum();
+          // async function getForum(){
+            
+          // }
+          // getForum();
           getUserName();
 
           clone.querySelector("#update").addEventListener("click", async () =>{

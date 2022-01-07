@@ -15,9 +15,6 @@
         <div class="container-fluid">
           <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
           <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
-          <a class="navbar-brand" href="./forum.html">Forum</a>
-          <a class="navbar-brand" href="./score.html">Score</a>
-          <a class="navbar-brand" href="./assignment.html">Assignment</a>
           <a class="navbar-brand" href="../../index.html">Logout</a>
         </div>
       </nav>
@@ -29,6 +26,8 @@
     </div>
     <div class="col text-center">
       <a href="#" class="btn btn-primary" id="forum">See Forum</a>
+      <a href="#" class="btn btn-primary" id="assignment">See Assignment</a>
+
       <!-- <a href="./forum.html" class="btn btn-primary">See Forum</a> -->
 
     </div>
@@ -66,6 +65,11 @@
     <p id="learning-outcome"></p>
     <p id="teaching-strategies"></p>
     <p id="textbooks"></p>
+
+    <p> <b>Score Percentage:</b> </p>
+    <p id="asg-score"></p>
+    <p id="mid-exam"></p>
+    <p id="final-exam"></p>
     
     <p> <b>Attendance:</b> </p>
     <p id="absence-limit"> </p>
@@ -129,7 +133,7 @@
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
         const {
-          courseName, courseDescription, courseCredits, teachingStrategies, learningOutcome, textbooks, absenceLimit
+          courseName, courseDescription, courseCredits, teachingStrategies, learningOutcome, textbooks, absenceLimit, asg, uts, uas
         } = docSnap.data();
         document
           .getElementById("course-name")
@@ -159,6 +163,18 @@
           .getElementById("absence-limit")
           .setAttribute("value", absenceLimit);
           document.getElementById("absence-limit").textContent = "Absence Limit: " + absenceLimit;
+          document
+          .getElementById("asg-score")
+          .setAttribute("value", asg);
+          document.getElementById("asg-score").textContent = "Assignment: " + asg;
+          document
+          .getElementById("mid-exam")
+          .setAttribute("value", uts);
+          document.getElementById("mid-exam").textContent = "Mid Exam: " + uts;
+          document
+          .getElementById("final-exam")
+          .setAttribute("value", uas);
+          document.getElementById("final-exam").textContent = "Final Exam: " + uas;
     
         }
         }
@@ -236,11 +252,6 @@
         status_content.textContent = "Attendance Status: " + status;
         
 
-        // clone2.querySelector("#forum").addEventListener("click", async () => {
-        //   localStorage.setItem("currentClass", classID)
-          
-        //   window.location.assign("./forum.html");
-        // });
 
         body2.appendChild(clone2);
       });
@@ -250,6 +261,11 @@
           
           window.location.assign("./forum.html");
         });
+
+        document.getElementById("assignment").addEventListener("click", async () => {
+          localStorage.setItem("currentClass", classID);
+          window.location.assign("./assignment.html");
+        })
 
 
     };

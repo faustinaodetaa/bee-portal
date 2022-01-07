@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Group Assignment</title>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/minty/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./exam.html">Exam</a>
+        <a class="navbar-brand" href="../../index.html">Logout</a>
+      </div>
+    </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+
+    <p><b>Groups:</b></p>
+    <a href="#" class="btn btn-primary" id="create-group">Create Group</a>
+
+    <div class="col text-center">
+      <div class="card text-center" style="width: 18rem" id="groups">
+        <div class="topics" id="groups">         
+          <div class="card-body">
+            <template id="group-template">
+              <div class="topic topic1">
+                <div class="topic-bg"></div>
+                <h5 id="group-name"></h5>
+                <p id="student-name"></p>
+                <p id="student-name2"></p>
+
+                </div>
+                <hr>              
+               <br>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+  </div>
+
+    <div class="form">
+      <div class="d-flex justify-content-center" style="margin-top: 100px">
+        <h3>Add Group Assignment</h3>
+      </div>
+      <div style="margin: 100px">
+        <fieldset>
+          <div class="form-group">
+            <label for="assignment-title" class="form-label mt-4"
+              >Assignment Title:
+            </label>
+            <input
+              id="assignment-title"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="assignment-content" class="form-label mt-4"
+              >Content:
+            </label>
+            <input
+              id="assignment-content"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="start-date" class="form-label mt-4">Start Date: </label>
+            <input
+              id="start-date"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="end-date" class="form-label mt-4">Deadline: </label>
+            <input
+              id="end-date"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <br />
+          <div class="text-center">
+            <button type="text" class="btn btn-primary" id="submitBtn">
+              Add Assignment
+            </button>
+          </div>
+          <hr />
+        </fieldset>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import {
+      Firestore,
+      collection,
+      addDoc,
+      getFirestore, query, getDocs, where, doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+    import { firebaseApp } from "../../firebase.js";
+
+    const db = getFirestore(firebaseApp);
+    const currClass = localStorage.getItem("currClass");
+
+    window.onload = async () => {
+        const q = query(collection(db, "Groups"), where("classID", "==", currClass));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((query) => {
+            const { groupName, studentID1, studentID2 } = query.data();
+            let body = document.querySelector("#groups");
+            let template = document.querySelector("#group-template");
+            const clone = template.content.cloneNode(true);
+            const group_name = clone.querySelector("#group-name");
+            const student_name = clone.querySelector("#student-name");
+            const student_name2 = clone.querySelector("#student-name2");
+
+            group_name.textContent = groupName;
+            
+
+            async function getStudentName() {
+            const docRef = doc(db, "Users", studentID1);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const { userName } = docSnap.data();
+                student_name.textContent = userName;
+            }
+            }
+
+            async function getStudentName2() {
+            const docRef = doc(db, "Users", studentID2);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const { userName } = docSnap.data();
+                document
+                .getElementById("student-name2")
+                .setAttribute("value", userName);
+                student_name2.textContent = userName;
+            }
+            }
+
+            getStudentName();
+            console.log('ok')
+            getStudentName2();
+            body.appendChild(clone);
+        })
+    }
+    document.getElementById("create-group").addEventListener("click", async () => {
+        localStorage.setItem("currClass", currClass);
+        window.location.assign("./addGroup.html");
+    })
+    // console.log(localStorage.getItem("currClass"));
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      try {
+        const docRef = await addDoc(collection(db, "GroupAssignments"), {
+          classID: currClass,
+          content: document.getElementById("assignment-content").value,
+          title: document.getElementById("assignment-title").value,
+          startDate: document.getElementById("start-date").value,
+          deadline: document.getElementById("end-date").value,
+        });
+        // console.log("Document written with ID: ", docRef.id);
+        alert("Success post a new assignment!");
+        window.location.assign("./assignment.html");
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    });
+  </script>
+</html>

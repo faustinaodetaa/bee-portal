@@ -40,20 +40,24 @@
                 <div class="topic topic1">
                   <div class="topic-bg"></div>
                   <h3 id="course-name"></h3>
-                  </div>
+                  
                   <div class="topic-count" id="course-credit"></div>
-                  <h5 id="course-description"></h5>
-                  <h5 id="learning-outcome"></h5>
-                  <h5 id="teaching-strategies"></h5>
-                  <h5 id="textbooks"></h5>
-
-    <br>
+                  <p id="course-description"></p>
+                  <p id="learning-outcome"></p>
+                  <p id="teaching-strategies"></p>
+                  <p id="textbooks"></p>
+                  <p id=""><b>Score Percentage: </b></h5>
+                  
+                  <p id="assignment"></p>
+                  <p id="mid-exam"></p>
+                  <p id="final-exam"></p>
                   <a href="#" class="btn btn-primary" id="update">Update Course</a>
                   <a href="#" class="btn btn-primary" id="delete">Delete Course</a>
-
-                 <br>
+                  <br>
+                  <hr>
                 </div>
               </template>
+              <br>
             </div>
           </div>
     </div>
@@ -87,7 +91,7 @@
     //   console.log(currUID.name);
       querySnapshot.forEach((query) => {
         // console.log(`${query.id} => ${query.data()}`);
-        const { courseName, courseCredits, courseDescription, learningOutcome, teachingStrategies, textbooks } = query.data();
+        const { courseName, courseCredits, courseDescription, learningOutcome, teachingStrategies, textbooks, asg, uts, uas } = query.data();
         console.log(query.data());
         let body = document.querySelector("#courses");
         let template = document.querySelector("#course-template");
@@ -98,6 +102,11 @@
         const learning_outcome = clone.querySelector("#learning-outcome");
         const teaching_strategies = clone.querySelector("#teaching-strategies");
         const textbooks_content = clone.querySelector("#textbooks");
+        const assignment = clone.querySelector("#assignment");
+        const mid_exam = clone.querySelector("#mid-exam");
+        const final_exam = clone.querySelector("#final-exam");
+
+
 
 
         // clone
@@ -109,6 +118,10 @@
         learning_outcome.textContent = "Learning Outcome: " + learningOutcome;
         teaching_strategies.textContent = "Teaching Strategies: " + teachingStrategies;
         textbooks_content.textContent = "Textbooks: " + textbooks;
+        assignment.textContent = "Assignment: " + asg;
+        mid_exam.textContent = "Mid Exam: " + uts;
+        final_exam.textContent = "Final Exam: " + uas;
+
 
 
         clone.querySelector("#update").addEventListener("click", async()=>{

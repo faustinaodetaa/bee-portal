@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Forum</title>
+    <title>Add Individual Assignment</title>
     <link
       rel="stylesheet"
       href="https://bootswatch.com/5/minty/bootstrap.min.css"
@@ -14,8 +14,9 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="./dashboardStudent.html">bee-portal</a>
-        <a class="navbar-brand" href="./dashboardStudent.html">Class</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">bee-portal</a>
+        <a class="navbar-brand" href="./dashboardLecturer.html">Class</a>
+        <a class="navbar-brand" href="./exam.html">Exam</a>
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
@@ -25,23 +26,45 @@
 
     <div class="form">
       <div class="d-flex justify-content-center" style="margin-top: 100px">
-        <h3>Add New Forum</h3>
+        <h3>Add Individual Assignment</h3>
       </div>
       <div style="margin: 100px">
         <fieldset>
           <div class="form-group">
-            <label for="forum-name">Forum Title: </label>
+            <label for="assignment-title" class="form-label mt-4"
+              >Assignment Title:
+            </label>
             <input
-              id="forum-name"
+              id="assignment-title"
               class="form-control"
               type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="forum-content">Forum Content: </label>
+            <label for="assignment-content" class="form-label mt-4"
+              >Content:
+            </label>
             <input
-              id="forum-content"
+              id="assignment-content"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="start-date" class="form-label mt-4">Start Date: </label>
+            <input
+              id="start-date"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+          <div class="form-group">
+            <label for="end-date" class="form-label mt-4">Deadline: </label>
+            <input
+              id="end-date"
               class="form-control"
               type="text"
               placeholder=" "
@@ -51,7 +74,7 @@
           <br />
           <div class="text-center">
             <button type="text" class="btn btn-primary" id="submitBtn">
-              Post Forum
+              Add Assignment
             </button>
           </div>
           <hr />
@@ -70,24 +93,21 @@
     import { firebaseApp } from "../../firebase.js";
 
     const db = getFirestore(firebaseApp);
-    // const currUID = await UserController.getUserByID(
-    //   localStorage.getItem("activeUserID")
-    // );
+    const currClass = localStorage.getItem("currClass");
 
-    // console.log(currUID.name);
-    console.log(localStorage.getItem("currClass"));
+    // console.log(localStorage.getItem("currClass"));
     document.getElementById("submitBtn").addEventListener("click", async () => {
       try {
-        const docRef = await addDoc(collection(db, "Forums"), {
-          userID: localStorage.getItem("activeUserID"),
-          classID: localStorage.getItem("currClass"),
-          title: document.getElementById("forum-name").value,
-          content: document.getElementById("forum-content").value,
-          // userID: currUID,
+        const docRef = await addDoc(collection(db, "Assignments"), {
+          classID: currClass,
+          content: document.getElementById("assignment-content").value,
+          title: document.getElementById("assignment-title").value,
+          startDate: document.getElementById("start-date").value,
+          deadline: document.getElementById("end-date").value,
         });
         // console.log("Document written with ID: ", docRef.id);
-        alert("Success post a new forum!");
-        window.location.assign("./forum.html");
+        alert("Success post a new assignment!");
+        window.location.assign("./assignment.html");
       } catch (e) {
         console.error("Error adding document: ", e);
       }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Submit Attendance</title>
+    <title>Add Group Assignment</title>
     <link
       rel="stylesheet"
       href="https://bootswatch.com/5/minty/bootstrap.min.css"
@@ -20,34 +20,38 @@
         <a class="navbar-brand" href="../../index.html">Logout</a>
       </div>
     </nav>
+    <div class="d-flex justify-content-center">
+      <h2 id="name"></h2>
+    </div>
+
     <div class="form">
       <div class="d-flex justify-content-center" style="margin-top: 100px">
-        <h3>Submit Student Attendance</h3>
+        <h3>Create Group</h3>
       </div>
       <div style="margin: 100px">
         <fieldset>
           <div class="form-group">
-            <label for="student-id" class="form-label mt-4">Student ID: </label>
+            <label for="group-name" class="form-label mt-4">Group Name: </label>
             <input
-              id="student-id"
+              id="group-name"
               class="form-control"
               type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="session" class="form-label mt-4">Session: </label>
+            <label for="student-id1" class="form-label mt-4">Student 1: </label>
             <input
-              id="session"
+              id="student-id1"
               class="form-control"
-              type="number"
+              type="text"
               placeholder=" "
             />
           </div>
           <div class="form-group">
-            <label for="status" class="form-label mt-4">Status: </label>
+            <label for="student-id2" class="form-label mt-4">Student 2: </label>
             <input
-              id="status"
+              id="student-id2"
               class="form-control"
               type="text"
               placeholder=" "
@@ -57,7 +61,7 @@
           <br />
           <div class="text-center">
             <button type="text" class="btn btn-primary" id="submitBtn">
-              Submit Attendance
+              Add Group
             </button>
           </div>
           <hr />
@@ -72,25 +76,49 @@
       collection,
       addDoc,
       getFirestore,
+      query,
+      getDocs,
+      where,
       doc,
+      getDoc,
     } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
     import { firebaseApp } from "../../firebase.js";
 
     const db = getFirestore(firebaseApp);
-    const currClass = localStorage.getItem("currentClass");
-
+    const currClass = localStorage.getItem("currClass");
+    console.log(currClass);
+    // console.log(localStorage.getItem("currClass"));
     document.getElementById("submitBtn").addEventListener("click", async () => {
       try {
-        const docRef = await addDoc(collection(db, "Attendances"), {
-          classID: currClass,
-          studentID: document.getElementById("student-id").value,
-          session: document.getElementById("session").value,
-          status: document.getElementById("status").value,
-        });
+        if (
+          document.getElementById("student-id1").value != "" &&
+          document.getElementById("student-id2").value != ""
+        ) {
+          const docRef = await addDoc(collection(db, "Groups"), {
+            classID: currClass,
+            groupName: document.getElementById("group-name").value,
+            studentID1: document.getElementById("student-id1").value,
+            studentID2: document.getElementById("student-id2").value,
+          });
+        } else if (document.getElementById("student-id1").value != "") {
+          const docRef = await addDoc(collection(db, "Groups"), {
+            classID: currClass,
+            groupName: document.getElementById("group-name").value,
+            studentID1: document.getElementById("student-id1").value,
+            studentID2: "",
+          });
+        } else if (document.getElementById("student-id2").value != "") {
+          const docRef = await addDoc(collection(db, "Groups"), {
+            classID: currClass,
+            groupName: document.getElementById("group-name").value,
+            studentID1: "-",
+            studentID2: document.getElementById("student-id2").value,
+          });
+        }
 
-        console.log("Document written with ID: ", docRef.id);
-        alert("Success submitting student attendance!");
-        window.location.assign("./classDetail.html");
+        // console.log("Document written with ID: ", docRef.id);
+        alert("Success create a new group!");
+        window.location.assign("./addGroupAssignment.html");
       } catch (e) {
         console.error("Error adding document: ", e);
       }

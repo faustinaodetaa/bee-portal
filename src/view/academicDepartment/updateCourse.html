@@ -90,6 +90,42 @@
               placeholder=" "
             />
           </div>
+
+          <div class="form-group">
+            <label for="assignment" class="form-label mt-4"
+              >Assignment Score Percentage:
+            </label>
+            <input
+              id="assignment"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="mid-exam" class="form-label mt-4"
+              >Mid Exam Score Percentage:
+            </label>
+            <input
+              id="mid-exam"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="final-exam" class="form-label mt-4"
+              >Final Exam Score Percentage:
+            </label>
+            <input
+              id="final-exam"
+              class="form-control"
+              type="text"
+              placeholder=" "
+            />
+          </div>
           <br />
           <div class="text-center">
             <button type="text" class="btn btn-primary" id="updateBtn">
@@ -130,6 +166,9 @@
           learningOutcome,
           teachingStrategies,
           textbooks,
+          asg,
+          uts,
+          uas,
         } = docSnap.data();
 
         document
@@ -148,6 +187,9 @@
           .getElementById("teaching-strategies")
           .setAttribute("value", teachingStrategies);
         document.getElementById("textbooks").setAttribute("value", textbooks);
+        document.getElementById("assignment").setAttribute("value", asg);
+        document.getElementById("mid-exam").setAttribute("value", uts);
+        document.getElementById("final-exam").setAttribute("value", uas);
 
         console.log("Document data:", docSnap.data());
       }
@@ -163,6 +205,9 @@
         teachingStrategies: document.getElementById("teaching-strategies")
           .value,
         textbooks: document.getElementById("textbooks").value,
+        asg: document.getElementById("assignment").value,
+        uts: document.getElementById("mid-exam").value,
+        uas: document.getElementById("final-exam").value,
       });
 
       alert("Success Updating course!");
